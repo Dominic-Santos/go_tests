@@ -1,6 +1,8 @@
 package main
 
-import "github.com/Dominic-Santos/gotest/utils"
+import (
+	"github.com/Dominic-Santos/gotest/utils"
+)
 
 func MoveNumberToRowCol(move int, board [][]string) (int, int) {
 	current := 0
@@ -79,24 +81,121 @@ func FindWinningMove(board [][]string, lookfor string) (bool, int, int){
 	return false, 0, 0
 }
 
-func FindGoodMove(board [][]string) (int, int) {
+func FindUrgentMove(board [][]string) (bool, int, int) {
 	var status bool
 	var row, col int
 	// try to win
 	status, row, col = FindWinningMove(board, "X")
 	if status {
-		return row, col
+		return true, row, col
 	}
 	// try not to lose
 	status, row, col = FindWinningMove(board, "O")
 	if status {
+		return true, row, col
+	}
+	return false, 0, 0
+}
+
+func FindGoodMove(board [][]string) (int, int) {
+	urgent, row, col := FindUrgentMove(board)
+	if urgent {
 		return row, col
 	}
 	return FindRandomMove(board)
 }
 
+func CalcStrength(row, col int, board [][]string) (int, int) {
+	var influence, length, tmplen int
+	// check row open
+	state := true
+	for i := 0; i < len(board); i++ {
+		switch board[row][i] {
+		case "O":
+			state = false
+			break
+		case "X":
+			tmplen++
+		}
+	}
+	if state {
+		influence++
+		length = tmplen
+	}
+	// check column open
+	state = true
+	tmplen = 0
+	for i := 0; i < len(board); i++ {
+		switch board[i][col] {
+		case "O":
+			state = false
+			break
+		case "X":
+			tmplen++
+		}
+	}
+	if state {
+		influence++
+		length = utils.MaxInt(length, tmplen)
+	}
+	// check topleft diagonal
+	if row == col {
+		state = true
+		tmplen = 0
+		for i := 0; i < len(board); i++ {
+			switch board[i][i] {
+			case "O":
+				state = false
+				break
+			case "X":
+				tmplen++
+			}
+		}
+		if state {
+			influence++
+			length = utils.MaxInt(length, tmplen)
+		}
+	}
+
+	// check topright diagonal
+	if row == len(board) - 1 - col {
+		state = true
+		tmplen = 0
+		for i := 0; i < len(board); i++ {
+			switch board[i][len(board) - 1 - i] {
+			case "O":
+				state = false
+				break
+			case "X":
+				tmplen++
+			}
+		}
+		if state {
+			influence++
+			length = utils.MaxInt(length, tmplen)
+		}
+	}
+
+	return influence, length
+}
+
+func FindSmartestMove(board [][]string) (int, int) {
+	var bestRow, bestCol, bestInfluence, bestLength int
+	for i := 0; i < len(board) * len(board); i++ {
+		influence, length := CalcStrength(i / len(board), i % len(board), board)
+		if influence > bestInfluence || influence == bestInfluence && length > bestLength {
+			bestRow, bestCol, bestInfluence, bestLength = i / len(board), i % len(board), influence, length
+		}
+	}
+	return bestRow, bestCol
+}
+
 func FindBestMove(board [][]string) (int, int) {
-	return FindRandomMove(board)
+	urgent, row, col := FindUrgentMove(board)
+	if urgent {
+		return row, col
+	}
+	return FindSmartestMove(board)
 }
 
 func AiTurn (mode int, board [][]string) {
