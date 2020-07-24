@@ -180,11 +180,19 @@ func CalcStrength(row, col int, board [][]string) (int, int) {
 }
 
 func FindSmartestMove(board [][]string) (int, int) {
-	var bestRow, bestCol, bestInfluence, bestLength int
+	var bestRow, bestCol, bestInfluence, bestLength, equalCount int
 	for i := 0; i < len(board) * len(board); i++ {
-		influence, length := CalcStrength(i / len(board), i % len(board), board)
-		if influence > bestInfluence || influence == bestInfluence && length > bestLength {
-			bestRow, bestCol, bestInfluence, bestLength = i / len(board), i % len(board), influence, length
+		if (board[i / len(board)][i % len(board)] == " ") {
+			influence, length := CalcStrength(i / len(board), i % len(board), board)
+			if influence > bestInfluence || influence == bestInfluence && length > bestLength {
+				bestRow, bestCol, bestInfluence, bestLength = i / len(board), i % len(board), influence, length
+				equalCount = 0
+			} else if influence == bestInfluence && length == bestLength {
+				equalCount++
+				if utils.RandomNumber(0, equalCount) == 0 {
+					bestRow, bestCol, bestInfluence, bestLength = i / len(board), i % len(board), influence, length
+				}
+			}
 		}
 	}
 	return bestRow, bestCol
