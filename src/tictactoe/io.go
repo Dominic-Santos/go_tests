@@ -14,9 +14,11 @@ import "github.com/Dominic-Santos/gotest/utils"
 var reader = bufio.NewReader(os.Stdin)
 
 func Clear() {
-	cmd := exec.Command("clear")
-	cmd.Stdout = os.Stdout
-	cmd.Run()
+	if !Debug {
+		cmd := exec.Command("clear")
+		cmd.Stdout = os.Stdout
+		cmd.Run()
+	}
 }
 
 func RequestUserInput() string {
@@ -43,7 +45,7 @@ func ShowError(s string){
 
 func ShowTitleScreen(error bool) {
 	ShowHeader()
-	fmt.Printf("Please select a mode:\n%v - Vs AI\n%v - 2 Player\n\n0 - Quit\n", ModeCpu, Mode2Play)
+	fmt.Printf("Please select a mode:\n%v - Vs Easy AI\n%v - Vs Medium AI\n%v - Vs Hard AI\n%v - 2 Player\n\n0 - Quit\n", ModeCpuEasy, ModeCpuMedium, ModeCpuHard, Mode2Play)
 	if error {
 		ShowError("mode")
 	}

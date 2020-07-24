@@ -1,10 +1,14 @@
 package main
 
-import "strings"
-import "github.com/Dominic-Santos/gotest/utils"
+import (
+	"strings"
+	"github.com/Dominic-Santos/gotest/utils"
+)
 
-var ModeCpu int = 1
-var Mode2Play int = 2
+var ModeCpuEasy int = 1
+var ModeCpuMedium int = 2
+var ModeCpuHard int = 3
+var Mode2Play int = 4
 
 func NumberAvailableMoves(board [][]string) int {
 	count := 0
@@ -64,8 +68,21 @@ func CheckBoard(board [][]string) string {
 			}
 		}
 	}
-	// check diagonal win
-	
+	// check diagonals win
+	var topleft []string
+	var topright []string
+	for i := 0; i < len(board); i++ {
+		topleft = append(topleft, board[i][i])
+		topright = append(topright, board[i][len(board) - 1 - i])
+	}
+
+	if board[0][0] != " " && strings.Join(topleft, "") == strings.Repeat(board[0][0], len(board)) {
+		return board[0][0]
+	}
+
+	if board[0][len(board) - 1] != " " && strings.Join(topright, "") == strings.Repeat(board[0][len(board) - 1], len(board)) {
+		return board[0][len(board) - 1]
+	}
 
 	// check board full
 	if NumberAvailableMoves(board) == 0 {

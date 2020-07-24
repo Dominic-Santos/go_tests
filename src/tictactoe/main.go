@@ -1,12 +1,14 @@
 package main
 
+var Debug = false
+
 func Title() int {
 	error := false
 	for {
 		Clear()
 		ShowTitleScreen(error)
 		n, err := RequestUserInt()
-		error = err != nil || n < 0 || n > 2 
+		error = err != nil || n < 0 || n > 4 
 
 		if !error {
 			return n
